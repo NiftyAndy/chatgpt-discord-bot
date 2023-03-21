@@ -5,11 +5,13 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc && node .",
+    "tsc": "tsc",
+    "build": "npm run tsc",
+    "start": "node .",
     "dev": "concurrently \"tsc --watch\" \"npx nodemon\"",
     "git": "git fetch && git pull"
   },
+  "postinstall": "npm run build",
   "keywords": [],
   "author": "MrlolDev",
   "license": "Apache-2.0 license",
