@@ -1,14 +1,14 @@
-import ms from "ms";
-import supabase from "./supabase.js";
-import delay from "delay";
+import ms from 'ms';
+import supabase from './supabase.js';
+import delay from 'delay';
 var clients = [];
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi } from 'openai';
 // @ts-ignore
-import chatGPT from "chatgpt-io";
-import { ChatGPTAuthTokenService } from "chat-gpt-authenticator";
+import chatGPT from 'chatgpt-io';
+import { ChatGPTAuthTokenService } from 'chat-gpt-authenticator';
 
 async function getTokens() {
-  let { data: accounts, error } = await supabase.from("accounts").select("*");
+  let { data: accounts, error } = await supabase.from('accounts').select('*');
   if (error) {
     return null;
   }
@@ -26,18 +26,18 @@ async function useToken(model): Promise<null | {
   if (!tokens || tokens.length <= 0) {
     return;
   }
-  var t = tokens.filter((x) => x.messages <= 2 && x.abled != false);
-  if (model == "chatgpt" || model == "dan") {
+  var t = tokens.filter(x => x.messages <= 2 && x.abled != false);
+  if (model == 'chatgpt' || model == 'dan') {
     t = tokens.filter(
-      (x) =>
+      x =>
         x.messages <= 1 &&
         x.access != null &&
-        x.access.includes("ey") &&
+        x.access.includes('ey') &&
         x.limited == null
     );
   }
-  if (model == "filter") {
-    t = tokens.filter((x) => x.messages <= 2);
+  if (model == 'filter') {
+    t = tokens.filter(x => x.messages <= 2);
   }
   var i = getRndInteger(0, t.length - 1);
   if (t.length <= 0) return;
@@ -46,7 +46,7 @@ async function useToken(model): Promise<null | {
     await addMessage(token.id);
     var client = {
       id: token.id,
-      type: "official",
+      type: 'official',
       key: token.key,
       session: token.access,
     };
@@ -60,18 +60,15 @@ function getRndInteger(min, max) {
 }
 async function addMessage(id) {
   let { data: accounts, error } = await supabase
-    .from("accounts")
-    .select("*")
-    .eq("id", id);
+    .from('accounts')
+    .select('*')
+    .eq('id', id);
   var tokenObj = accounts[0];
   if (tokenObj) {
     const { data, error } = await supabase
-      .from("accounts")
-      .update({
-        messages: tokenObj.messages + 1,
-        totalMessages: tokenObj.totalMessages + 1,
-      })
-      .eq("id", id);
+      .from('accounts')
+      .update({ messages: tokenObj.messages + 1 })
+      .eq('id', id);
   }
 }
 
@@ -89,9 +86,9 @@ export async function disableAcc(id, bool) {
     };
   }
   const { data, error } = await supabase
-    .from("accounts")
+    .from('accounts')
     .update(update)
-    .eq("id", id);
+    .eq('id', id);
 }
 
 export async function checkLimited() {
@@ -100,21 +97,21 @@ export async function checkLimited() {
     return;
   }
   var t = tokens.filter(
-    (x) => x.access != null && x.access.includes("ey") && x.limited !== null
+    x => x.access != null && x.access.includes('ey') && x.limited !== null
   );
   console.log(`checking ${t.length} tokens`);
   var enabled = 0;
   for (var i = 0; i < t.length; i++) {
     var diff = Date.now() - t[i].limited;
-    if (diff >= ms("30m")) {
+    if (diff >= ms('30m')) {
       enabled++;
       const { data, error } = await supabase
-        .from("accounts")
+        .from('accounts')
         .update({
           messages: 0,
           limited: null,
         })
-        .eq("id", t[i].id);
+        .eq('id', t[i].id);
     }
   }
   console.log(`enabled ${enabled} tokens`);
@@ -122,21 +119,21 @@ export async function checkLimited() {
 
 async function removeMessage(id) {
   let { data: accounts, error } = await supabase
-    .from("accounts")
-    .select("*")
-    .eq("id", id);
+    .from('accounts')
+    .select('*')
+    .eq('id', id);
   if (!accounts || accounts.length <= 0) return;
   var tokenObj = accounts[0];
   if (tokenObj) {
     const { data, error } = await supabase
-      .from("accounts")
+      .from('accounts')
       .update({ messages: tokenObj.messages - 1 })
-      .eq("id", id);
+      .eq('id', id);
   }
 }
 
 export async function resetto0() {
-  let { data: accounts, error } = await supabase.from("accounts").select("*");
+  let { data: accounts, error } = await supabase.from('accounts').select('*');
   if (error) {
     console.log(error);
     return;
@@ -144,9 +141,9 @@ export async function resetto0() {
   for (var i = 0; i < accounts.length; i++) {
     var tokenObj = accounts[i];
     const { data, error } = await supabase
-      .from("accounts")
+      .from('accounts')
       .update({ messages: 0 })
-      .eq("id", tokenObj.id);
+      .eq('id', tokenObj.id);
   }
 }
 

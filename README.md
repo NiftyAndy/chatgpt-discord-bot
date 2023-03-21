@@ -16,7 +16,7 @@ A discord bot for interact with ChatGPT
 3. Create supabase tables
 
 Table: accounts
-Fields (name, dataType): (id,uuid), (created_at, timestamp), (email, text), (password, text), (abled, boolean), (totalMessages, numeric), (lastUse, numeric), (key, text)
+Fields (name, dataType): (id,uuid), (created_at, timestamp), (email, text), (password, text), (abled, boolean), (messages, numeric), (messages, numeric), (lastUse, numeric), (key, text), (access, text)
 In this table it is only required the key(open ai key), abled(true), messages(0) and id property(random UUID).
 
 Table: chatsonic

@@ -15,34 +15,18 @@
       {
         "choices": [
           {
-            "name": "Alan(gpt-4)",
-            "value": "alan"
-          },
-          {
             "name": "ChatGPT(gpt-3.5)",
             "value": "chatgpt"
           },
           {
-            "name": "Clyde(gpt-3.5)",
-            "value": "clyde"
-          },
-          {
-            "name": "GPT-4",
+            "name": "GPT-4 (Premium only)",
             "value": "gpt-4"
-          },
-          {
-            "name": "GPT-3",
-            "value": "gpt-3"
-          },
-          {
-            "name": "Open Assistant(oasst-sft-1-pythia-12b)",
-            "value": "oasst-sft-1-pythia-12b"
           }
         ],
         "type": 3,
         "name": "model",
         "description": "The model you want to use for the AI.",
-        "required": true
+        "required": false
       },
       {
         "name": "image",

@@ -5,57 +5,54 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   ButtonBuilder,
-} from "discord.js";
-import { chat } from "../modules/gpt-api.js";
-import supabase from "../modules/supabase.js";
-import { useToken } from "../modules/loadbalancer.js";
-import chatSonic from "../modules/sonic.js";
-import { isPremium } from "../modules/premium.js";
+} from 'discord.js';
+import { chat } from '../modules/gpt-api.js';
+import supabase from '../modules/supabase.js';
+import { useToken } from '../modules/loadbalancer.js';
+import chatSonic from '../modules/sonic.js';
+import { isPremium } from '../modules/premium.js';
 var maintenance = false;
-import { ImagineInteraction } from "../modules/stablehorde.js";
+import { ImagineInteraction } from '../modules/stablehorde.js';
 
 export default {
-  cooldown: "2m",
+  cooldown: '2m',
   disablePing: null,
   data: new SlashCommandBuilder()
-    .setName("chat")
-    .setDescription("Chat with an AI")
-    .addStringOption((option) =>
+    .setName('chat')
+    .setDescription('Chat with an AI')
+    .addStringOption(option =>
       option
-        .setName("message")
-        .setDescription("The message for the AI")
+        .setName('message')
+        .setDescription('The message for the AI')
         .setRequired(true)
     )
-    .addStringOption((option) =>
+    .addStringOption(option =>
       option
-        .setName("model")
-        .setDescription("The model you want to use for the AI.")
-        .setRequired(true)
+        .setName('model')
+        .setDescription('The model you want to use for the AI.')
+        .setRequired(false)
         .addChoices(
+          // { name: 'GPT-3', value: 'gpt-3' },
+          { name: 'ChatGPT(gpt-3.5)', value: 'chatgpt' },
+          { name: 'GPT-4 (Premium only)', value: 'gpt-4' }
           //  { name: "Alan(gpt-4)", value: "alan" },
-          { name: "ChatGPT(gpt-3.5)", value: "chatgpt" },
           //{ name: "Clyde(gpt-3.5)", value: "clyde" },
           //{ name: "DAN(gpt-3.5)", value: "dan" },
-          { name: "GPT-4(Premium only)", value: "gpt-4" },
-          { name: "GPT-3", value: "gpt-3" },
-          {
-            name: "Open Assistant(oasst-sft-1-pythia-12b)",
-            value: "oasst-sft-1-pythia-12b",
-          }
+          // { name: 'Open Assistant', value: 'oasst-sft-1-pythia-12b' }
         )
     )
-    .addAttachmentOption((option) =>
+    .addAttachmentOption(option =>
       option
-        .setName("image")
-        .setDescription("The image option for chat with the bot")
+        .setName('image')
+        .setDescription('The image option for chat with the bot')
         .setRequired(false)
     ),
   async execute(interaction, client, commands, commandType, options) {
     await commandType.load(interaction);
-    if (maintenance == true && interaction.user.id != "530102778408861706") {
+    if (maintenance == true && interaction.user.id != '530102778408861706') {
       await commandType.reply(
         interaction,
-        "Service under maintenance, for more information join us on [dsc.gg/turing](https://dsc.gg/turing)"
+        'Service under maintenance, for more information join us on [dsc.gg/turing](https://dsc.gg/turing)'
       );
       return;
     }
@@ -70,16 +67,16 @@ export default {
       hasVoted = options.hasVoted;
       attachment = options.attachment;
     } else {
-      message = interaction.options.getString("message");
-      attachment = interaction.options.getAttachment("image");
+      message = interaction.options.getString('message');
+      attachment = interaction.options.getAttachment('image');
       if (
-        message.includes("@everyone") ||
-        message.includes("<@") ||
-        message.includes("@here")
+        message.includes('@everyone') ||
+        message.includes('<@') ||
+        message.includes('@here')
       ) {
         return;
       }
-      model = interaction.options.getString("model");
+      model = interaction.options.getString('model') ?? 'chatgpt';
       hasVoted = interaction.user.hasVoted;
     }
 
@@ -87,66 +84,58 @@ export default {
     var cached = false;
     var guildId;
     if (interaction.guild) guildId = interaction.guild.id;
-    var ispremium = await isPremium(interaction.user.id, guildId);
-    /*if (attachment && !ispremium) {
-      await commandType.reply(interaction, {
-        content:
-          "This feature(image) is premium only, to get premium use the command `/premium buy`",
-        ephemeral: true,
-      });
-      return;
-    }*/
-    if ((!ispremium && model == "gpt-4") || (!ispremium && model == "alan")) {
-      /*
-      await commandType.reply(interaction, {
-        content: `For using this model you need to be a premium user or vote for us on [top.gg](https://top.gg/bot/1053015370115588147/vote) for free. To get premium use the command \`/premium buy\``,
-        ephemeral: true,
-      });
-      return;*/
-      await commandType.reply(interaction, {
-        content: `For using this model you need to be a premium user. To get premium use the command \`/premium buy\``,
-        ephemeral: true,
-      });
-      return;
-    }
+    var ispremium = true;
+    // if ((!ispremium && model == "gpt-4") || (!ispremium && model == "alan")) {
+    //   /*
+    //   await commandType.reply(interaction, {
+    //     content: `For using this model you need to be a premium user or vote for us on [top.gg](https://top.gg/bot/1053015370115588147/vote) for free. To get premium use the command \`/premium buy\``,
+    //     ephemeral: true,
+    //   });
+    //   return;*/
+    //   await commandType.reply(interaction, {
+    //     content: `For using this model you need to be a premium user. To get premium use the command \`/premium buy\``,
+    //     ephemeral: true,
+    //   });
+    //   return;
+    // }
 
-    if (!ispremium && model == "gpt-3" && !hasVoted) {
+    // if (!ispremium && model == "gpt-3" && !hasVoted) {
+    //   await commandType.reply(interaction, {
+    //     content: `For using this model you need to be a premium user or vote for us on [top.gg](https://top.gg/bot/1053015370115588147/vote) for free. To get premium use the command \`/premium buy\``,
+    //     ephemeral: true,
+    //   });
+    //   return;
+    // }
+    if (attachment && model == 'gpt-3') {
       await commandType.reply(interaction, {
-        content: `For using this model you need to be a premium user or vote for us on [top.gg](https://top.gg/bot/1053015370115588147/vote) for free. To get premium use the command \`/premium buy\``,
-        ephemeral: true,
-      });
-      return;
-    }
-    if (attachment && model == "gpt-3") {
-      await commandType.reply(interaction, {
-        content: "This feature(image) is not available for this model",
+        content: 'This feature(image) is not available for this model',
         ephemeral: true,
       });
       return;
     }
     if (
-      model == "gpt-3" ||
-      model == "oasst-sft-1-pythia-12b" ||
-      model == "gpt-4" ||
-      model == "OpenAssistant"
+      model == 'gpt-3' ||
+      model == 'oasst-sft-1-pythia-12b' ||
+      model == 'gpt-4' ||
+      model == 'OpenAssistant'
     ) {
       let { data: results, error } = await supabase
-        .from("results")
-        .select("*")
+        .from('results')
+        .select('*')
 
         // Filters
-        .eq("prompt", message.toLowerCase())
-        .eq("provider", model);
+        .eq('prompt', message.toLowerCase())
+        .eq('provider', model);
       if (!results || error) {
         console.log(error, results);
-        var errr = "Error connecting with db";
+        var errr = 'Error connecting with db';
 
         await responseWithText(
           interaction,
           message,
           errr,
           channel,
-          "error",
+          'error',
           commandType,
           null,
           client
@@ -155,19 +144,19 @@ export default {
       }
       if (
         (results[0] && results[0].result.text && !ispremium) ||
-        (model != "gpt-4" &&
+        (model != 'gpt-4' &&
           results[0] &&
           results[0].result.text &&
           !attachment)
       ) {
         result = {
           text: results[0].result.text,
-          type: model == "oasst-sft-1-pythia-12b" ? "OpenAssistant" : model,
+          type: model == 'oasst-sft-1-pythia-12b' ? 'OpenAssistant' : model,
         };
         const { data, error } = await supabase
-          .from("results")
+          .from('results')
           .update({ uses: results[0].uses + 1 })
-          .eq("id", results[0].id);
+          .eq('id', results[0].id);
         cached = true;
       } else {
         result = await chat(
@@ -183,10 +172,10 @@ export default {
       }
     }
     if (
-      model == "chatgpt" ||
-      model == "dan" ||
-      model == "clyde" ||
-      model == "alan"
+      model == 'chatgpt' ||
+      model == 'dan' ||
+      model == 'clyde' ||
+      model == 'alan'
     ) {
       result = await chat(
         message,
@@ -200,32 +189,32 @@ export default {
       );
       // }
     }
-    if (model == "chatsonic") {
+    if (model == 'chatsonic') {
       if (!ispremium) {
         await commandType.reply(interaction, {
           ephemeral: true,
           content:
             `This model is only for premium users. If you want to donate use the command ` +
-            "`/premium buy` .",
+            '`/premium buy` .',
         });
         return;
       }
       let { data: results, error } = await supabase
-        .from("results")
-        .select("*")
+        .from('results')
+        .select('*')
 
         // Filters
-        .eq("prompt", message.toLowerCase())
-        .eq("provider", "chatsonic");
+        .eq('prompt', message.toLowerCase())
+        .eq('provider', 'chatsonic');
       if (!results || error) {
-        var errr = "Error connecting with db";
+        var errr = 'Error connecting with db';
 
         await responseWithText(
           interaction,
           message,
           errr,
           channel,
-          "error",
+          'error',
           commandType,
           attachment,
           client
@@ -233,11 +222,11 @@ export default {
         return;
       }
       if (results[0] && results[0].result.text) {
-        result = { text: results[0].result.text, type: "chatsonic" };
+        result = { text: results[0].result.text, type: 'chatsonic' };
         const { data, error } = await supabase
-          .from("results")
+          .from('results')
           .update({ uses: results[0].uses + 1 })
-          .eq("id", results[0].id);
+          .eq('id', results[0].id);
         cached = true;
       } else {
         result = await chatSonic(message);
@@ -249,7 +238,7 @@ export default {
         message,
         `Something wrong happened, please wait we are solving this issue [dsc.gg/turing](https://dsc.gg/turing)`,
         channel,
-        "error",
+        'error',
         commandType,
         null,
         client
@@ -259,7 +248,7 @@ export default {
     if (!result.error) {
       var response = result.text;
       if (cached == false) {
-        const { data, error } = await supabase.from("results").insert([
+        const { data, error } = await supabase.from('results').insert([
           {
             provider: model,
             prompt: message.toLowerCase(),
@@ -284,16 +273,16 @@ export default {
         client
       );
       const { data, error } = await supabase
-        .from("users")
+        .from('users')
         .update({ defaultChatModel: result.type })
-        .eq("id", interaction.user.id);
+        .eq('id', interaction.user.id);
     } else {
       await responseWithText(
         interaction,
         message,
         result.error,
         channel,
-        "error",
+        'error',
         commandType,
         null,
         client
@@ -314,12 +303,12 @@ async function responseWithText(
   client
 ) {
   prompt = prompt
-    .replaceAll("@everyone", "everyone")
-    .replaceAll("@here", "here")
-    .replaceAll("<@", "@");
+    .replaceAll('@everyone', 'everyone')
+    .replaceAll('@here', 'here')
+    .replaceAll('<@', '@');
 
   var completeResponse = `**${interaction.user.tag}:** ${prompt}\n**AI(${type}):** ${result}`;
-  var charsCount = completeResponse.split("").length;
+  var charsCount = completeResponse.split('').length;
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setStyle(ButtonStyle.Danger)
@@ -327,7 +316,7 @@ async function responseWithText(
       .setCustomId(`reset_${type}-${interaction.user.id}`)
   );
   var rows = [];
-  if (type != "error") {
+  if (type != 'error') {
     rows.push(row);
   }
   /*
@@ -339,9 +328,9 @@ async function responseWithText(
       },
     ];
   }*/
-  if (result.includes("GEN_IMG=")) {
-    var imgPrompt = result.split("GEN_IMG=")[1];
-    await ImagineInteraction(interaction, client, "auto", imgPrompt);
+  if (result.includes('GEN_IMG=')) {
+    var imgPrompt = result.split('GEN_IMG=')[1];
+    await ImagineInteraction(interaction, client, 'auto', imgPrompt);
     return;
   }
 
@@ -354,7 +343,7 @@ async function responseWithText(
       if (i == 0) {
         try {
           lastMsg = await commandType.reply(interaction, {
-            content: completeResponse.split("").slice(0, 2000).join(""),
+            content: completeResponse.split('').slice(0, 2000).join(''),
             components: rows,
             //    files: files,
           });
@@ -366,9 +355,9 @@ async function responseWithText(
           try {
             lastMsg = await lastMsg.reply(
               completeResponse
-                .split("")
+                .split('')
                 .slice(2000 * i, 2000 * i + 2000)
-                .join("")
+                .join('')
             );
           } catch (err) {}
         }
